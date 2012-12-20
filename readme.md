@@ -16,7 +16,7 @@ Documentation
 -------------
 
 The documentation may be read online at
-[GoPkgDoc](http://go.pkgdoc.org/github.com/jsummers/fmtu).
+[GoDoc](http://godoc.org/github.com/jsummers/fmtu).
 
 Or, after installing, type:
 
