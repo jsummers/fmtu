@@ -62,4 +62,7 @@ func TestOne(t *testing.T) {
 
 	g = Sprintf("%v", myInt(-17))
 	check(t, "customtype", "−17", g)
+
+	g = Sprintf("%d %*d %*.*f %d", 1, 3, -2, 10, 4, 1.234567, 5)
+	check(t, "*", "1  −2     1.2346 5", g)
 }

@@ -16,6 +16,7 @@ type segmentInfoType struct {
 	start        int // Start of this segment (index into the original format string)
 	end          int // 1 + the index of the last byte in this segment
 	isFmtSegment bool
+	astCount     int
 	verb         byte   // Valid if isFmtSegment = true
 	formatted    string // This segment’s contents, after formatting
 }
@@ -27,6 +28,7 @@ type ctxType struct {
 
 	segCount    int
 	curSegStart int
+	curAstCount int
 	inFmt       bool
 }
 
@@ -50,6 +52,8 @@ func (ctx *ctxType) endFmtSegment(i int) {
 	ctx.seg[ctx.segCount].start = ctx.curSegStart
 	ctx.seg[ctx.segCount].end = i
 	ctx.seg[ctx.segCount].isFmtSegment = true
+	ctx.seg[ctx.segCount].astCount = ctx.curAstCount
+	ctx.curAstCount = 0
 	ctx.segCount++
 }
 
@@ -87,10 +91,13 @@ func (ctx *ctxType) parseFormatString() {
 	ctx.segCount = 0
 	ctx.curSegStart = 0
 	ctx.inFmt = false
+	ctx.curAstCount = 0
 
 	// Scan through the format string, byte by byte.
 	for i = 0; i < len(ctx.format); i++ {
-		if ctx.inFmt && isVerb(ctx.format[i]) {
+		if ctx.inFmt && ctx.format[i] == '*' {
+			ctx.curAstCount++
+		} else if ctx.inFmt && isVerb(ctx.format[i]) {
 			// Found the end of a format specifier
 			ctx.endFmtSegment(i + 1)
 			// Record the start position of the next segment.
@@ -130,16 +137,16 @@ func fixupQuoted(s string) string {
 	}
 
 	// Find the first and last occurrences of ' or ", so we can replace them.
-	fpos := strings.IndexAny(s, "\"'");
-	lpos := strings.LastIndexAny(s, "\"'");
-	if fpos<0 || lpos<0 || lpos<=fpos {
-		return s;
+	fpos := strings.IndexAny(s, "\"'")
+	lpos := strings.LastIndexAny(s, "\"'")
+	if fpos < 0 || lpos < 0 || lpos <= fpos {
+		return s
 	}
 
-	if s[fpos]=='"' {
-		return s[:fpos] + "\u201c" + s[fpos+1:lpos] + "\u201d" + s[lpos+1:];
-	} else if s[fpos]=='\'' {
-		return s[:fpos] + "\u2018" + s[fpos+1:lpos] + "\u2019" + s[lpos+1:];
+	if s[fpos] == '"' {
+		return s[:fpos] + "\u201c" + s[fpos+1:lpos] + "\u201d" + s[lpos+1:]
+	} else if s[fpos] == '\'' {
+		return s[:fpos] + "\u2018" + s[fpos+1:lpos] + "\u2019" + s[lpos+1:]
 	}
 
 	return s
@@ -153,11 +160,15 @@ func fixupDuration(s string) string {
 	return fixupNumber(s)
 }
 
-func (ctx *ctxType) customFormat(segNum int, argNum int) string {
+func (ctx *ctxType) customFormat(segNum int, firstArgNum int, numArgs int) string {
+	// argNum is the index of the argument that we're primarily concerned with.
+	// Any other arguments are just for the field width or precision.
+	argNum := firstArgNum + numArgs - 1
+
 	// The format specifier:
 	ufmt := ctx.format[ctx.seg[segNum].start:ctx.seg[segNum].end]
 	// Format it using the standard Sprintf().
-	formatted := fmt.Sprintf(ufmt, ctx.args[argNum:argNum+1]...)
+	formatted := fmt.Sprintf(ufmt, ctx.args[firstArgNum:firstArgNum+numArgs]...)
 
 	// Handle special types:
 	switch ctx.args[argNum].(type) {
@@ -190,8 +201,8 @@ func (ctx *ctxType) applyFormats() {
 			if curArgNum >= len(ctx.args) {
 				panic("too many format specifiers")
 			}
-			ctx.seg[i].formatted = ctx.customFormat(i, curArgNum)
-			curArgNum++
+			ctx.seg[i].formatted = ctx.customFormat(i, curArgNum, 1+ctx.seg[i].astCount)
+			curArgNum += 1 + ctx.seg[i].astCount
 		} else {
 			// No true format specifiers, but use Sprintf because we may still
 			// need to process “%%”.
