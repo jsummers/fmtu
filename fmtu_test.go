@@ -48,6 +48,12 @@ func TestOne(t *testing.T) {
 	g = Sprintf("%+q", 0x263a)
 	check(t, "q4", "‘\\u263a’", g)
 
+	g = Sprintf("%10q", "x")
+	check(t, "q5", "       “x”", g)
+
+	g = Sprintf("%-10q", "x")
+	check(t, "q6", "“x”       ", g)
+
 	g = Sprintf("%v", time.Duration(-25)*time.Microsecond)
 	check(t, "duration", "−25μs", g)
 

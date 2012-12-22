@@ -128,12 +128,20 @@ func fixupQuoted(s string) string {
 	if n < 2 {
 		return s
 	}
-	if s[0] == '\'' && s[n-1] == '\'' {
-		return "\u2018" + s[1:n-1] + "\u2019"
+
+	// Find the first and last occurrences of ' or ", so we can replace them.
+	fpos := strings.IndexAny(s, "\"'");
+	lpos := strings.LastIndexAny(s, "\"'");
+	if fpos<0 || lpos<0 || lpos<=fpos {
+		return s;
 	}
-	if s[0] == '"' && s[n-1] == '"' {
-		return "\u201c" + s[1:n-1] + "\u201d"
+
+	if s[fpos]=='"' {
+		return s[:fpos] + "\u201c" + s[fpos+1:lpos] + "\u201d" + s[lpos+1:];
+	} else if s[fpos]=='\'' {
+		return s[:fpos] + "\u2018" + s[fpos+1:lpos] + "\u2019" + s[lpos+1:];
 	}
+
 	return s
 }
 
