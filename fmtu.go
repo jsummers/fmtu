@@ -1,5 +1,5 @@
 // ◄◄◄ fmtu.go ►►►
-// 
+//
 // By Jason Summers, 2012.
 
 package fmtu

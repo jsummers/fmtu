@@ -1,5 +1,5 @@
 // ◄◄◄ doc.go ►►►
-// 
+//
 // By Jason Summers, 2012.
 
 /*
