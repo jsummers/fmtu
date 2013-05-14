@@ -54,10 +54,5 @@ suffix to be “μs”.
 Note: If your format string is invalid or not compatible with the arguments,
 the behavior is undefined. It may cause a run-time panic, or it may not do
 what you expect. This is different from the fmt package.
-
-Warning for Windows users: As of Go version 1.0.3, it is difficult for a Go
-program to print Unicode characters to a Windows console. You may get garbage
-characters instead. That isn’t fmtu’s fault (it’s a limitation of Go’s io
-library), and it will probably be fixed in a future version of Go.
 */
 package fmtu
