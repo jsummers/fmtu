@@ -154,7 +154,7 @@ func fixupQuoted(s string) string {
 
 func fixupDuration(s string) string {
 	if len(s) >= 2 && s[len(s)-2] == 'u' && s[len(s)-1] == 's' {
-		s = strings.Replace(s, "us", "μs", 1)
+		s = strings.Replace(s, "us", "µs", 1)
 	}
 	// Durations can be negative, so fix any minus sign also.
 	return fixupNumber(s)

@@ -49,7 +49,7 @@ QUOTATION MARK, U+201D RIGHT DOUBLE QUOTATION MARK, U+2018 LEFT SINGLE
 QUOTATION MARK, and U+2019 RIGHT SINGLE QUOTATION MARK.
 
 fmtu also knows about the time.Duration type, and will fix its “us”
-suffix to be “μs”.
+suffix to be “µs”.
 
 Note: If your format string is invalid or not compatible with the arguments,
 the behavior is undefined. It may cause a run-time panic, or it may not do
