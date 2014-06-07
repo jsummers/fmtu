@@ -54,5 +54,8 @@ suffix to be “µs”.
 Note: If your format string is invalid or not compatible with the arguments,
 the behavior is undefined. It may cause a run-time panic, or it may not do
 what you expect. This is different from the fmt package.
+
+fmtu does not support the “indexed arguments” feature (e.g. “%[1]d”)
+introduced in Go 1.2.
 */
 package fmtu
